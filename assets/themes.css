@@ -1,0 +1,616 @@
+/* Modern Dark Theme for Cheque Management System */
+
+/* Shared theme for Cheque Manager */
+.app-theme {
+  --bg: #0b1020;
+  --card: #11172b;
+  --muted: #94a3b8;
+  --text: #e2e8f0;
+  --primary: #3b82f6;
+  --primary-600: #2563eb;
+  --accent: #22d3ee;
+  --success: #22c55e;
+  --danger: #ef4444;
+  --radius: 14px;
+  --shadow: 0 10px 30px rgba(0,0,0,0.35);
+}
+
+.app-theme {
+  margin: 0;
+  font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  background: radial-gradient(1200px 800px at 80% -10%, rgba(34,211,238,0.08), transparent),
+              radial-gradient(900px 600px at -10% 0%, rgba(59,130,246,0.10), transparent),
+              var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+@media (min-width: 780px) {
+  .app-theme { align-items: flex-start; }
+  .app-card { margin-top: 28px; }
+}
+
+/* Layout helpers */
+.app-container { 
+  max-width: 1000px; 
+  margin: 28px auto; 
+  padding: 16px; 
+}
+
+.app-container.full { 
+  max-width: 100%; 
+  width: 100%; 
+  margin-left: 0; 
+  margin-right: 0; 
+  padding-left: 16px; 
+  padding-right: 16px; 
+}
+
+.app-grid { 
+  display: grid; 
+  grid-template-columns: repeat(2, minmax(0, 1fr)); 
+  gap: 18px; 
+}
+
+@media (min-width: 780px) { 
+  .app-grid { 
+    grid-template-columns: repeat(3, minmax(0, 1fr)); 
+  } 
+}
+
+@media (max-width: 520px) { 
+  .app-grid { 
+    grid-template-columns: 1fr; 
+  } 
+}
+
+.app-row { 
+  display: flex; 
+  gap: 16px; 
+  flex-wrap: wrap; 
+  align-items: stretch; 
+}
+
+.app-col { 
+  flex: 1 1 320px; 
+  min-width: 320px; 
+}
+
+/* Cards / Headers */
+.app-card {
+  width: 100%;
+  max-width: 980px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02)), var(--card);
+  border: 1px solid rgba(148,163,184,0.22);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.app-card.wide { 
+  max-width: 1400px; 
+}
+
+.app-card.full { 
+  max-width: 100%; 
+  width: 100%; 
+}
+
+.app-header {
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(148,163,184,0.22);
+  background: linear-gradient(180deg, rgba(34,211,238,0.06), rgba(34,211,238,0));
+}
+
+.app-title { 
+  font-weight: 600; 
+  letter-spacing: .2px; 
+}
+
+.app-muted { 
+  color: var(--muted); 
+}
+
+.app-content { 
+  padding: 24px; 
+}
+
+.app-panel { 
+  padding: 16px; 
+}
+
+/* Tiles */
+.app-tile {
+  position: relative;
+  background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02)), #111a33;
+  border: 1px solid rgba(148,163,184,0.22);
+  border-radius: 14px;
+  padding: 18px;
+  text-decoration: none;
+  color: var(--text);
+  transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease;
+  overflow: hidden;
+}
+
+.app-tile:hover { 
+  transform: translateY(-2px); 
+  border-color: rgba(59,130,246,0.45); 
+  background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.04)), #122047; 
+}
+
+.app-tile h3 { 
+  margin: 0 0 6px 0; 
+  font-size: 1.05rem; 
+}
+
+.app-tile p { 
+  margin: 0; 
+  font-size: 0.92rem; 
+  color: var(--muted); 
+}
+
+/* Buttons / Links */
+.app-btn { 
+  display: inline-flex; 
+  align-items: center; 
+  justify-content: center; 
+  gap: 8px; 
+  cursor: pointer; 
+  border: none; 
+  border-radius: 12px; 
+  padding: 12px 14px; 
+  font-weight: 600; 
+  font-size: 1rem; 
+  color: white; 
+  background: linear-gradient(90deg, var(--primary), var(--accent)); 
+  box-shadow: 0 8px 20px rgba(59,130,246,0.25); 
+}
+
+.app-btn.secondary { 
+  background: rgba(148,163,184,0.15); 
+  color: var(--text); 
+  box-shadow: none; 
+  border: 1px solid rgba(148,163,184,0.28); 
+}
+
+.app-btn.danger { 
+  background: linear-gradient(90deg, #ef4444, #f97316); 
+}
+
+.app-link { 
+  text-decoration: none; 
+  color: var(--text); 
+  background: rgba(148,163,184,0.18); 
+  padding: 8px 10px; 
+  border-radius: 10px; 
+  border: 1px solid rgba(148,163,184,0.28); 
+}
+
+.app-logout { 
+  padding: 10px 14px; 
+  font-size: 0.95rem; 
+  border-radius: 10px; 
+  border: 1px solid rgba(148,163,184,0.2); 
+  background: rgba(148,163,184,0.16); 
+  color: var(--text); 
+  text-decoration: none; 
+  transition: background 0.16s ease, border-color 0.16s ease; 
+}
+
+.app-logout:hover { 
+  background: rgba(148,163,184,0.22); 
+  border-color: rgba(148,163,184,0.3); 
+}
+
+/* Forms */
+label { 
+  font-size: 0.95rem; 
+  color: var(--muted); 
+}
+
+input[type="text"], input[type="password"], input[type="number"], input[type="date"], select, textarea {
+  width: 100%; 
+  padding: 10px 12px; 
+  border-radius: 10px; 
+  border: 1px solid rgba(148,163,184,0.28); 
+  background: #101a35; 
+  color: var(--text); 
+  outline: none; 
+  transition: border-color 0.15s, background 0.15s;
+}
+
+input[type="text"]:focus, input[type="password"]:focus, input[type="number"]:focus, input[type="date"]:focus, select:focus, textarea:focus { 
+  border-color: var(--primary); 
+  background: #122046; 
+}
+
+/* Tables */
+table { 
+  width: 100%; 
+  border-collapse: collapse; 
+}
+
+th, td { 
+  text-align: left; 
+  padding: 10px 8px; 
+  border-bottom: 1px solid rgba(148,163,184,0.22); 
+}
+
+th { 
+  color: var(--muted); 
+  font-weight: 500; 
+}
+
+tr:hover td { 
+  background: rgba(148,163,184,0.10); 
+}
+
+/* Inline table form controls: wider for usability */
+table input[type="text"], table input[type="password"], table input[type="number"] {
+  min-width: 180px;
+}
+
+/* Auth */
+.login-wrap { 
+  max-width: 420px; 
+  width: 100%; 
+  margin: 0 auto; 
+}
+
+/* Modern Auth UI */
+.auth-wrap { 
+  position: relative; 
+  display: grid; 
+  place-items: center; 
+  min-height: 60vh; 
+}
+
+.auth-bg {
+  position: absolute; 
+  inset: 0; 
+  pointer-events: none; 
+  overflow: hidden;
+}
+
+.auth-bg::before, .auth-bg::after {
+  content: ""; 
+  position: absolute; 
+  border-radius: 9999px; 
+  filter: blur(40px); 
+  opacity: 0.35;
+}
+
+.auth-bg::before { 
+  width: 420px; 
+  height: 420px; 
+  background: radial-gradient(circle, #22d3ee, transparent 60%); 
+  top: -80px; 
+  right: -80px; 
+}
+
+.auth-bg::after { 
+  width: 520px; 
+  height: 520px; 
+  background: radial-gradient(circle, #3b82f6, transparent 60%); 
+  bottom: -120px; 
+  left: -120px; 
+}
+
+.login-card {
+  width: 100%; 
+  max-width: 440px; 
+  position: relative; 
+  z-index: 1;
+  background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02)), rgba(17,23,43,0.8);
+  border: 1px solid rgba(148,163,184,0.25); 
+  border-radius: 18px; 
+  box-shadow: 0 20px 60px rgba(0,0,0,0.45);
+  padding: 22px 20px; 
+  overflow: hidden;
+}
+
+.login-head { 
+  display: flex; 
+  align-items: center; 
+  gap: 12px; 
+  margin-bottom: 12px; 
+}
+
+.login-logo { 
+  width: 40px; 
+  height: 40px; 
+  border-radius: 12px; 
+  background: radial-gradient(circle at 30% 30%, var(--accent), var(--primary)); 
+  box-shadow: 0 8px 22px rgba(34,211,238,0.35); 
+}
+
+.login-title { 
+  margin: 0; 
+  font-size: 1.35rem; 
+  font-weight: 700; 
+  letter-spacing: .2px; 
+}
+
+.login-sub { 
+  margin: 2px 0 12px 0; 
+  color: var(--muted); 
+  font-size: .95rem; 
+}
+
+.form-grid { 
+  display: grid; 
+  gap: 12px; 
+}
+
+.input-wrap { 
+  position: relative; 
+}
+
+.input-wrap svg { 
+  position: absolute; 
+  left: 12px; 
+  top: 50%; 
+  transform: translateY(-50%); 
+  opacity: .75; 
+}
+
+.input-wrap input { 
+  padding-left: 38px; 
+}
+
+.login-card .form-grid input { 
+  width: 100%; 
+  max-width: 100%; 
+  box-sizing: border-box; 
+}
+
+.helper { 
+  display: flex; 
+  align-items: center; 
+  justify-content: space-between; 
+  gap: 8px; 
+  margin: 4px 0 4px; 
+}
+
+.helper a { 
+  color: var(--text); 
+  text-decoration: none; 
+  font-size: .9rem; 
+  opacity: .75; 
+}
+
+.helper a:hover { 
+  opacity: 1; 
+}
+
+.cta { 
+  margin-top: 6px; 
+  display: flex; 
+  align-items: center; 
+  gap: 8px; 
+}
+
+.cta small { 
+  color: var(--muted); 
+}
+
+/* Utility */
+.app-msg { 
+  margin: 10px 0 0; 
+  font-size: .95rem; 
+}
+
+.app-msg.ok { 
+  color: #bbf7d0; 
+}
+
+.app-msg.err { 
+  color: #fecaca; 
+}
+
+/* CRITICAL FIXES WE IMPLEMENTED TOGETHER */
+
+/* 1. Top alignment fixes for transactions.php */
+.transactions-container {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
+
+.form-section {
+    margin-top: 0 !important;
+}
+
+.section-title {
+    margin-top: 0 !important;
+}
+
+/* 2. Specific spacing overrides */
+.app-header {
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+}
+
+.app-content {
+    padding-top: 0 !important;
+    margin-top: 0 !important;
+}
+
+.app-card {
+    padding-top: 0 !important;
+}
+
+.app-card.full {
+    padding-top: 0 !important;
+}
+
+.app-container.full {
+    padding-top: 0 !important;
+    margin-top: 0 !important;
+}
+
+/* 3. Form section top alignment */
+.form-section:first-child {
+    margin-top: 0 !important;
+    padding-top: 8px !important;
+}
+
+/* 4. Table input width fixes */
+input[type="text"], input[type="password"], input[type="number"], input[type="date"], select, textarea {
+    min-width: 180px;
+}
+
+/* 5. Force dark theme for password inputs */
+input[type="password"] {
+    background: #122046 !important;
+    color: var(--text) !important;
+}
+
+input[type="password"]:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 30px #122046 inset !important;
+    -webkit-text-fill-color: var(--text) !important;
+    background-color: #122046 !important;
+}
+
+/* 6. Print Button Styles */
+.btn-print {
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+    border: 1px solid rgba(59, 130, 68, 0.3);
+}
+
+.btn-print:hover {
+    background: rgba(59, 130, 246, 0.2);
+}
+
+/* 7. Amount and Date Cell Styles */
+.amount-cell {
+    font-weight: 600;
+    color: var(--accent);
+}
+
+.date-cell {
+    font-family: 'Courier New', monospace;
+    font-size: 0.85rem;
+}
+
+/* 8. Action Buttons */
+.action-buttons {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+}
+
+.btn-small {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-edit {
+    background: rgba(34, 197, 94, 0.1);
+    color: #22c55e;
+    border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.btn-edit:hover {
+    background: rgba(34, 197, 94, 0.2);
+}
+
+.btn-delete {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.btn-delete:hover {
+    background: rgba(239, 68, 68, 0.2);
+}
+
+/* 9. Checkbox Group */
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.checkbox-group input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--primary);
+}
+
+/* 10. Status Badges */
+.status-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.status-yes {
+    background: rgba(34, 197, 94, 0.1);
+    color: var(--success);
+}
+
+.status-no {
+    background: rgba(148, 163, 184, 0.1);
+    color: var(--muted);
+}
+
+/* 11. Empty State */
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--muted);
+}
+
+.empty-state svg {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
+
+/* 12. Responsive Design */
+@media (max-width: 768px) {
+    .app-container {
+        padding: 16px;
+    }
+    
+    .app-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    
+    .app-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .login-card {
+        padding: 24px;
+        margin: 16px;
+    }
+}
+
