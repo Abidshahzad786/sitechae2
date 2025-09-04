@@ -286,6 +286,8 @@ if ($shouldRun) {
     <title>List of Cheques</title>
     <link rel="stylesheet" href="assets/theme.css">
     <style>
+      /* Align content to top-left for this page */
+      .app-theme { align-items: flex-start; justify-content: flex-start; }
       @media print {
         .no-print { display: none !important; }
         .only-print { display: block !important; }
@@ -293,16 +295,17 @@ if ($shouldRun) {
         body, .app-theme { background: #fff !important; color: #000 !important; }
         .app-card { box-shadow: none !important; border: none !important; }
         .print-container { margin: 0 !important; padding: 0 !important; }
-        .report-header { position: fixed; top: 0; left: 0; right: 0; padding: 8mm 10mm 4mm; border-bottom: 1px solid #000; background: #fff; }
+        .report-header { position: fixed; top: 0; left: 0; right: 0; height: 20mm; padding: 4mm 10mm; border-bottom: 1px solid #000; background: #fff; box-sizing: border-box; }
         .print-title { font-size: 16pt; font-weight: 700; }
         .print-sub { font-size: 10pt; margin-top: 2mm; }
         .print-params { font-size: 10pt; margin-top: 2mm; }
-        .report-table { width: 100%; border-collapse: collapse; margin-top: 36mm; }
+        .report-body { padding: 24mm 10mm 14mm; box-sizing: border-box; }
+        .report-table { width: 100%; border-collapse: collapse; }
         .report-table th, .report-table td { border: 1px solid #000; padding: 4px 6px; font-size: 10pt; }
         .report-table thead { display: table-header-group; }
-        .report-footer { position: fixed; bottom: 0; left: 0; right: 0; padding: 4mm 10mm; border-top: 1px solid #000; font-size: 9pt; display: flex; justify-content: space-between; background: #fff; }
-        @page { margin: 16mm; }
-        .page-number:after { content: counter(page) " of " counter(pages); }
+        .report-footer { position: fixed; bottom: 0; left: 0; right: 0; height: 10mm; padding: 3mm 10mm; border-top: 1px solid #000; font-size: 9pt; display: flex; justify-content: space-between; background: #fff; box-sizing: border-box; }
+        @page { margin: 10mm; }
+        .page-number:after { content: counter(page); }
       }
       /* Responsive filters: stacked on mobile, wrap on desktop to avoid overlap */
       .filters-bar { display: grid; gap: 12px; align-items: end; }
@@ -422,7 +425,8 @@ if ($shouldRun) {
                 Party: <?= h($selectedPartyLabel) ?> | Cheque: <?= h($selectedChequeLabel) ?> | Date Range: <?= h($selectedDateRange) ?>
               </div>
             </div>
-            <table class="report-table">
+            <div class="report-body">
+              <table class="report-table">
               <thead>
                 <tr>
                   <th>#</th>
@@ -461,7 +465,8 @@ if ($shouldRun) {
                   <th colspan="2"></th>
                 </tr>
               </tfoot>
-            </table>
+              </table>
+            </div>
             <!-- Print footer (only visible when printing) -->
             <div class="only-print report-footer">
               <div>Generated: <?= h($generatedOn) ?></div>
