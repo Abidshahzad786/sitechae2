@@ -182,6 +182,20 @@ if (!function_exists('mysqli_stmt_bind_params_dyn')) {
     }
 }
 
+// Prepare labels for print header
+$selectedPartyLabel = 'All Parties';
+foreach ($parties as $p) {
+    if ((string)$p['party_id'] === $selectedPartyId) { $selectedPartyLabel = (string)$p['party_name']; break; }
+}
+$selectedChequeLabel = 'All Cheques';
+foreach ($cheques as $c) {
+    if ((string)$c['cheque_id'] === $selectedChequeId) { $selectedChequeLabel = (string)$c['cheque_name']; break; }
+}
+$selectedDateRange = ($dateFromRaw !== '' || $dateToRaw !== '')
+    ? ((($dateFromRaw !== '') ? strtoupper($dateFromRaw) : '...') . ' - ' . (($dateToRaw !== '') ? strtoupper($dateToRaw) : '...'))
+    : 'All Dates';
+$generatedOn = date('d/M/Y H:i');
+
 // Export CSV
 if (isset($_GET['export']) && $_GET['export'] === 'csv' && $shouldRun) {
     header('Content-Type: text/csv; charset=UTF-8');
@@ -274,8 +288,21 @@ if ($shouldRun) {
     <style>
       @media print {
         .no-print { display: none !important; }
+        .only-print { display: block !important; }
+        .app-header, .filters-bar, .actions { display: none !important; }
         body, .app-theme { background: #fff !important; color: #000 !important; }
         .app-card { box-shadow: none !important; border: none !important; }
+        .print-container { margin: 0 !important; padding: 0 !important; }
+        .report-header { position: fixed; top: 0; left: 0; right: 0; padding: 8mm 10mm 4mm; border-bottom: 1px solid #000; background: #fff; }
+        .print-title { font-size: 16pt; font-weight: 700; }
+        .print-sub { font-size: 10pt; margin-top: 2mm; }
+        .print-params { font-size: 10pt; margin-top: 2mm; }
+        .report-table { width: 100%; border-collapse: collapse; margin-top: 36mm; }
+        .report-table th, .report-table td { border: 1px solid #000; padding: 4px 6px; font-size: 10pt; }
+        .report-table thead { display: table-header-group; }
+        .report-footer { position: fixed; bottom: 0; left: 0; right: 0; padding: 4mm 10mm; border-top: 1px solid #000; font-size: 9pt; display: flex; justify-content: space-between; background: #fff; }
+        @page { margin: 16mm; }
+        .page-number:after { content: counter(page) " of " counter(pages); }
       }
       /* Responsive filters: stacked on mobile, wrap on desktop to avoid overlap */
       .filters-bar { display: grid; gap: 12px; align-items: end; }
@@ -303,7 +330,7 @@ if ($shouldRun) {
     </style>
   </head>
   <body class="app-theme">
-    <div class="app-card full">
+    <div class="app-card full print-container">
       <div class="app-header">
         <div class="brand">
           <div class="logo"></div>
@@ -321,6 +348,14 @@ if ($shouldRun) {
         </div>
       </div>
       <div class="app-content">
+        <!-- Print header (visible only when printing) -->
+        <div class="print-header no-screen" style="display:none;"></div>
+        <div class="no-print" style="display:none;"></div>
+        <div class="no-print"></div>
+        <div class="no-print"></div>
+        <div class="no-print"></div>
+        <div class="no-print"></div>
+        <div class="no-print"></div>
         <form class="form-grid filters-bar no-print" method="get" action="">
           <input type="hidden" name="run" value="1" />
           <div class="field field-party">
@@ -379,7 +414,15 @@ if ($shouldRun) {
           </div>
         <?php else: ?>
           <div class="app-panel" style="overflow-x:auto;">
-            <table>
+            <!-- Print header (only visible when printing) -->
+            <div class="only-print report-header">
+              <div class="print-title">Umar and Sons LLC</div>
+              <div class="print-sub">List of Cheques</div>
+              <div class="print-params">
+                Party: <?= h($selectedPartyLabel) ?> | Cheque: <?= h($selectedChequeLabel) ?> | Date Range: <?= h($selectedDateRange) ?>
+              </div>
+            </div>
+            <table class="report-table">
               <thead>
                 <tr>
                   <th>#</th>
@@ -419,6 +462,11 @@ if ($shouldRun) {
                 </tr>
               </tfoot>
             </table>
+            <!-- Print footer (only visible when printing) -->
+            <div class="only-print report-footer">
+              <div>Generated: <?= h($generatedOn) ?></div>
+              <div>Page <span class="page-number"></span></div>
+            </div>
           </div>
         <?php endif; ?>
       </div>
