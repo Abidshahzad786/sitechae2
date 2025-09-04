@@ -293,7 +293,10 @@ if ($shouldRun) {
         .only-print { display: block !important; }
         .app-header, .filters-bar, .actions { display: none !important; }
         body, .app-theme { background: #fff !important; color: #000 !important; }
-        .app-card { box-shadow: none !important; border: none !important; }
+        /* Remove viewport-based height and spacing to avoid trailing blank page */
+        .app-theme { min-height: auto !important; padding: 0 !important; }
+        .app-container { margin: 0 !important; padding: 0 !important; width: auto !important; max-width: none !important; }
+        .app-card { margin: 0 !important; padding: 0 !important; box-shadow: none !important; border: none !important; border-radius: 0 !important; }
         .print-container { margin: 0 !important; padding: 0 !important; }
         .app-content, .app-panel { margin: 0 !important; padding: 0 !important; }
         /* Make header part of normal flow to avoid extra pages */
