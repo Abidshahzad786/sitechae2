@@ -69,6 +69,7 @@ $dateToRaw   = isset($_GET['date_to'])   ? (string)$_GET['date_to']   : '';
 
 $dateFrom = parse_date_input($dateFromRaw);
 $dateTo   = parse_date_input($dateToRaw);
+$shouldRun = isset($_GET['run']) && $_GET['run'] === '1';
 
 // Fetch dropdown data
 $parties = [];
@@ -182,7 +183,7 @@ if (!function_exists('mysqli_stmt_bind_params_dyn')) {
 }
 
 // Export CSV
-if (isset($_GET['export']) && $_GET['export'] === 'csv') {
+if (isset($_GET['export']) && $_GET['export'] === 'csv' && $shouldRun) {
     header('Content-Type: text/csv; charset=UTF-8');
     header('Content-Disposition: attachment; filename="cheques_' . date('Ymd_His') . '.csv"');
     $out = fopen('php://output', 'w');
@@ -235,28 +236,30 @@ if (isset($_GET['export']) && $_GET['export'] === 'csv') {
     exit;
 }
 
-// Fetch page rows
+// Fetch page rows only when filters submitted
 $rows = [];
-if ($isMysqli) {
-    $sqlM = str_replace([':party_id', ':cheque_id', ':date_from', ':date_to'], ['?','?','?','?'], $sql);
-    $stmt = $conn->prepare($sqlM);
-    if ($stmt) {
-        mysqli_stmt_bind_params_dyn($stmt, $bindTypes, $bindValues);
-        $stmt->execute();
-        $res = $stmt->get_result();
-        if ($res instanceof mysqli_result) {
-            while ($row = $res->fetch_assoc()) { $rows[] = $row; }
-            $res->free();
+if ($shouldRun) {
+    if ($isMysqli) {
+        $sqlM = str_replace([':party_id', ':cheque_id', ':date_from', ':date_to'], ['?','?','?','?'], $sql);
+        $stmt = $conn->prepare($sqlM);
+        if ($stmt) {
+            mysqli_stmt_bind_params_dyn($stmt, $bindTypes, $bindValues);
+            $stmt->execute();
+            $res = $stmt->get_result();
+            if ($res instanceof mysqli_result) {
+                while ($row = $res->fetch_assoc()) { $rows[] = $row; }
+                $res->free();
+            }
+            $stmt->close();
         }
-        $stmt->close();
-    }
-} else {
-    try {
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute($params);
-        $rows = $stmt->fetchAll();
-    } catch (Throwable $e) {
-        $rows = [];
+    } else {
+        try {
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute($params);
+            $rows = $stmt->fetchAll();
+        } catch (Throwable $e) {
+            $rows = [];
+        }
     }
 }
 
@@ -290,6 +293,7 @@ if ($isMysqli) {
       </div>
       <div class="app-content">
         <form class="form-grid no-print" method="get" action="">
+          <input type="hidden" name="run" value="1" />
           <div>
             <label for="party_id">Party</label>
             <select name="party_id" id="party_id">
@@ -328,7 +332,14 @@ if ($isMysqli) {
           </div>
         </form>
 
-        <?php if (count($rows) === 0): ?>
+        <?php if (!$shouldRun): ?>
+          <div class="empty-state">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+            </svg>
+            <div>Select filters and click Apply to view results.</div>
+          </div>
+        <?php elseif (count($rows) === 0): ?>
           <div class="empty-state">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
@@ -453,6 +464,7 @@ if ($isMysqli) {
         const btn = document.getElementById('exportCsvBtn');
         if (!btn) return;
         const params = new URLSearchParams(window.location.search);
+        params.set('run', '1');
         params.set('export', 'csv');
         btn.href = `${window.location.pathname}?${params.toString()}`;
       })();
