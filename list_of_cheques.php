@@ -283,7 +283,8 @@ if ($shouldRun) {
       @media (min-width: 992px) {
         .filters-bar { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; }
         .filters-bar > .field { flex: 0 0 auto; }
-        .filters-actions { margin-left: auto; flex: 0 0 auto; }
+        /* Buttons occupy full width of second row on desktop to avoid cramp */
+        .filters-actions { flex-basis: 100%; margin-left: 0; }
         /* Reasonable control widths on desktop so items fit and wrap if needed */
         .filters-bar .field select,
         .filters-bar .field input[type="text"] { width: 220px; max-width: 100%; }
@@ -301,8 +302,6 @@ if ($shouldRun) {
         </div>
         <div class="actions no-print" style="display:flex; gap:8px; align-items:center;">
           <a class="app-logout" href="index.php">Home</a>
-          <button class="app-btn btn-print" onclick="window.print()">Print</button>
-          <a class="app-btn secondary" id="exportCsvBtn" href="#">Export CSV</a>
         </div>
       </div>
       <div class="app-content">
@@ -343,6 +342,8 @@ if ($shouldRun) {
           <div class="filters-actions">
             <button type="submit" class="app-btn">Apply Filters</button>
             <a class="app-link" href="list_of_cheques.php">Reset</a>
+            <button type="button" class="app-btn btn-print" onclick="window.print()">Print</button>
+            <a class="app-btn secondary" id="exportCsvBtn" href="#">Export CSV</a>
           </div>
         </form>
 
