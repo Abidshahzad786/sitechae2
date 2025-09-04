@@ -277,15 +277,17 @@ if ($shouldRun) {
         body, .app-theme { background: #fff !important; color: #000 !important; }
         .app-card { box-shadow: none !important; border: none !important; }
       }
-      /* Responsive filters: stacked on mobile, single row on desktop */
+      /* Responsive filters: stacked on mobile, wrap on desktop to avoid overlap */
       .filters-bar { display: grid; gap: 12px; align-items: end; }
-      @media (min-width: 992px) {
-        .filters-bar { display: flex; flex-wrap: nowrap; align-items: flex-end; gap: 12px; }
-        .filters-bar > div { flex: 0 0 auto; }
-      }
       .filters-actions { display: flex; gap: 8px; align-items: flex-end; }
       @media (min-width: 992px) {
-        .filters-actions { margin-left: auto; }
+        .filters-bar { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; }
+        .filters-bar > .field { flex: 0 0 auto; }
+        .filters-actions { margin-left: auto; flex: 0 0 auto; }
+        /* Reasonable control widths on desktop so items fit and wrap if needed */
+        .filters-bar .field select,
+        .filters-bar .field input[type="text"] { width: 220px; max-width: 100%; }
+        .filters-bar .field-date input[type="text"] { width: 160px; max-width: 100%; }
       }
     </style>
   </head>
@@ -306,7 +308,7 @@ if ($shouldRun) {
       <div class="app-content">
         <form class="form-grid filters-bar no-print" method="get" action="">
           <input type="hidden" name="run" value="1" />
-          <div>
+          <div class="field field-party">
             <label for="party_id">Party</label>
             <select name="party_id" id="party_id">
               <option value="">All Parties</option>
@@ -316,7 +318,7 @@ if ($shouldRun) {
             </select>
           </div>
 
-          <div>
+          <div class="field field-cheque">
             <label for="cheque_id">Cheque Name</label>
             <select name="cheque_id" id="cheque_id">
               <option value="">All Cheques</option>
@@ -326,13 +328,13 @@ if ($shouldRun) {
             </select>
           </div>
 
-          <div>
+          <div class="field field-date">
             <label for="date_from">Date From (DD/MON/YYYY)</label>
             <input type="text" name="date_from" id="date_from" placeholder="DD/MON/YYYY" value="<?= h($dateFromRaw) ?>" />
             <input type="date" id="date_from_iso" style="display:none" />
           </div>
 
-          <div>
+          <div class="field field-date">
             <label for="date_to">Date To (DD/MON/YYYY)</label>
             <input type="text" name="date_to" id="date_to" placeholder="DD/MON/YYYY" value="<?= h($dateToRaw) ?>" />
             <input type="date" id="date_to_iso" style="display:none" />
