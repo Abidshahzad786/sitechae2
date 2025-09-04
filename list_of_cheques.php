@@ -295,17 +295,19 @@ if ($shouldRun) {
         body, .app-theme { background: #fff !important; color: #000 !important; }
         .app-card { box-shadow: none !important; border: none !important; }
         .print-container { margin: 0 !important; padding: 0 !important; }
-        .report-header { position: fixed; top: 0; left: 0; right: 0; height: 20mm; padding: 4mm 10mm; border-bottom: 1px solid #000; background: #fff; box-sizing: border-box; }
+        /* Make header part of normal flow to avoid extra pages */
+        .report-header { position: static; height: auto; padding: 0 0 4mm; margin: 0 0 6mm; border-bottom: 1px solid #000; background: #fff; box-sizing: border-box; }
         .print-title { font-size: 16pt; font-weight: 700; }
         .print-sub { font-size: 10pt; margin-top: 2mm; }
         .print-params { font-size: 10pt; margin-top: 2mm; }
-        .report-body { padding: 24mm 10mm 14mm; box-sizing: border-box; }
+        .report-body { padding: 0; box-sizing: border-box; }
         .report-table { width: 100%; border-collapse: collapse; }
         .report-table th, .report-table td { border: 1px solid #000; padding: 4px 6px; font-size: 10pt; }
         .report-table thead { display: table-header-group; }
-        .report-footer { position: fixed; bottom: 0; left: 0; right: 0; height: 10mm; padding: 3mm 10mm; border-top: 1px solid #000; font-size: 9pt; display: flex; justify-content: space-between; background: #fff; box-sizing: border-box; }
+        /* Hide footer to remove page number and prevent extra page */
+        .report-footer { display: none !important; }
         @page { margin: 10mm; }
-        .page-number:after { content: counter(page); }
+        .page-number:after { content: ''; }
       }
       /* Responsive filters: stacked on mobile, wrap on desktop to avoid overlap */
       .filters-bar { display: grid; gap: 12px; align-items: end; }
