@@ -277,6 +277,16 @@ if ($shouldRun) {
         body, .app-theme { background: #fff !important; color: #000 !important; }
         .app-card { box-shadow: none !important; border: none !important; }
       }
+      /* Responsive filters: stacked on mobile, single row on desktop */
+      .filters-bar { display: grid; gap: 12px; align-items: end; }
+      @media (min-width: 992px) {
+        .filters-bar { display: flex; flex-wrap: nowrap; align-items: flex-end; gap: 12px; }
+        .filters-bar > div { flex: 0 0 auto; }
+      }
+      .filters-actions { display: flex; gap: 8px; align-items: flex-end; }
+      @media (min-width: 992px) {
+        .filters-actions { margin-left: auto; }
+      }
     </style>
   </head>
   <body class="app-theme">
@@ -294,7 +304,7 @@ if ($shouldRun) {
         </div>
       </div>
       <div class="app-content">
-        <form class="form-grid no-print" method="get" action="">
+        <form class="form-grid filters-bar no-print" method="get" action="">
           <input type="hidden" name="run" value="1" />
           <div>
             <label for="party_id">Party</label>
@@ -328,7 +338,7 @@ if ($shouldRun) {
             <input type="date" id="date_to_iso" style="display:none" />
           </div>
 
-          <div style="display:flex; align-items:flex-end; gap:8px;">
+          <div class="filters-actions">
             <button type="submit" class="app-btn">Apply Filters</button>
             <a class="app-link" href="list_of_cheques.php">Reset</a>
           </div>
