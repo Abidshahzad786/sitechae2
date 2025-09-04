@@ -280,6 +280,9 @@ if ($shouldRun) {
       /* Responsive filters: stacked on mobile, wrap on desktop to avoid overlap */
       .filters-bar { display: grid; gap: 12px; align-items: end; }
       .filters-actions { display: flex; gap: 8px; align-items: flex-end; }
+      /* Neutral small button to match list button styles */
+      .btn-reset { background: rgba(148, 163, 184, 0.1); color: var(--text); border: 1px solid rgba(148, 163, 184, 0.3); }
+      .btn-reset:hover { background: rgba(148, 163, 184, 0.2); }
       @media (min-width: 992px) {
         .filters-bar { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; }
         .filters-bar > .field { flex: 0 0 auto; }
@@ -340,10 +343,10 @@ if ($shouldRun) {
           </div>
 
           <div class="filters-actions">
-            <button type="submit" class="app-btn">Apply Filters</button>
-            <a class="app-link" href="list_of_cheques.php">Reset</a>
-            <button type="button" class="app-btn btn-print" onclick="window.print()">Print</button>
-            <a class="app-btn secondary" id="exportCsvBtn" href="#">Export CSV</a>
+            <button type="submit" class="btn-small btn-edit">Apply Filters</button>
+            <a class="btn-small btn-reset" href="list_of_cheques.php">Reset</a>
+            <button type="button" class="btn-small btn-print" onclick="window.print()">Print</button>
+            <a class="btn-small btn-print" id="exportCsvBtn" href="#">Export CSV</a>
           </div>
         </form>
 
