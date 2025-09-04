@@ -283,6 +283,11 @@ if ($shouldRun) {
       /* Neutral small button to match list button styles */
       .btn-reset { background: rgba(148, 163, 184, 0.1); color: var(--text); border: 1px solid rgba(148, 163, 184, 0.3); }
       .btn-reset:hover { background: rgba(148, 163, 184, 0.2); }
+      /* Normalize small buttons (buttons and anchors) to same height/shape and remove underline */
+      .btn-small { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; line-height: 1; }
+      a.btn-small { text-decoration: none; }
+      a.btn-small:hover { text-decoration: none; }
+      .filters-actions .btn-small { min-height: 32px; }
       @media (min-width: 992px) {
         .filters-bar { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; }
         .filters-bar > .field { flex: 0 0 auto; }
