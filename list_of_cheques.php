@@ -1,7 +1,18 @@
 <?php
 declare(strict_types=1);
 
-require_once __DIR__ . '/includes/db.php';
+// Prefer existing project connection.php if available
+$__conn_included = false;
+foreach ([__DIR__ . '/connection.php', __DIR__ . '/includes/connection.php', __DIR__ . '/../connection.php'] as $__cand) {
+    if (file_exists($__cand)) { require_once $__cand; $__conn_included = true; break; }
+}
+// Fallback local connector only if no PDO is available
+if (!isset($pdo) || !($pdo instanceof PDO)) {
+    if (!function_exists('get_pdo')) {
+        $dbHelper = __DIR__ . '/includes/db.php';
+        if (file_exists($dbHelper)) { require_once $dbHelper; }
+    }
+}
 
 // Utilities
 function h(?string $v): string { return htmlspecialchars((string)$v, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); }
@@ -32,9 +43,15 @@ function format_amount(?string $value): string {
     return number_format((float)$value, 2, '.', ',');
 }
 
-$pdo = null;
+$pdo = isset($pdo) && ($pdo instanceof PDO) ? $pdo : null;
 try {
-    $pdo = get_pdo();
+    if (!($pdo instanceof PDO)) {
+        if (function_exists('get_pdo')) {
+            $pdo = get_pdo();
+        } else {
+            throw new RuntimeException('No PDO connection available. Define $pdo in connection.php or provide get_pdo().');
+        }
+    }
 } catch (Throwable $e) {
     http_response_code(500);
     echo '<!doctype html><html><head><meta charset="utf-8"><title>Error</title></head><body>'; 
