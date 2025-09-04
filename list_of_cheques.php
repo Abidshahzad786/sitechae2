@@ -270,7 +270,7 @@ if ($shouldRun) {
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>List of Cheques</title>
-    <link rel="stylesheet" href="/assets/themes.css">
+    <link rel="stylesheet" href="assets/theme.css">
     <style>
       @media print {
         .no-print { display: none !important; }
@@ -282,11 +282,13 @@ if ($shouldRun) {
   <body class="app-theme">
     <div class="app-card full">
       <div class="app-header">
-        <div>
+        <div class="brand">
+          <div class="logo"></div>
           <div class="app-title">List of Cheques</div>
           <div class="app-muted">Filter and export cheques based on transactions</div>
         </div>
         <div class="actions no-print" style="display:flex; gap:8px; align-items:center;">
+          <a class="app-logout" href="index.php">Home</a>
           <button class="app-btn btn-print" onclick="window.print()">Print</button>
           <a class="app-btn secondary" id="exportCsvBtn" href="#">Export CSV</a>
         </div>
