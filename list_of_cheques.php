@@ -7,7 +7,7 @@ foreach ([__DIR__ . '/connection.php', __DIR__ . '/includes/connection.php', __D
     if (file_exists($__cand)) { require_once $__cand; $__conn_included = true; break; }
 }
 // Fallback local connector only if no PDO is available
-if (!isset($pdo) || !($pdo instanceof PDO)) {
+if (!isset($pdo) || !(class_exists('PDO') && ($pdo instanceof PDO))) {
     if (!function_exists('get_pdo')) {
         $dbHelper = __DIR__ . '/includes/db.php';
         if (file_exists($dbHelper)) { require_once $dbHelper; }
@@ -43,13 +43,14 @@ function format_amount(?string $value): string {
     return number_format((float)$value, 2, '.', ',');
 }
 
-$pdo = isset($pdo) && ($pdo instanceof PDO) ? $pdo : null;
+$isMysqli = isset($conn) && ($conn instanceof mysqli);
+$pdo = (isset($pdo) && class_exists('PDO') && ($pdo instanceof PDO)) ? $pdo : null;
 try {
-    if (!($pdo instanceof PDO)) {
+    if (!$isMysqli && !($pdo instanceof PDO)) {
         if (function_exists('get_pdo')) {
             $pdo = get_pdo();
         } else {
-            throw new RuntimeException('No PDO connection available. Define $pdo in connection.php or provide get_pdo().');
+            throw new RuntimeException('No DB connection available. Provide mysqli $conn in connection.php or PDO via $pdo/get_pdo().');
         }
     }
 } catch (Throwable $e) {
@@ -71,50 +72,82 @@ $dateTo   = parse_date_input($dateToRaw);
 
 // Fetch dropdown data
 $parties = [];
-try {
-    $stmt = $pdo->query('SELECT party_id, party_name FROM parties ORDER BY party_name');
-    $parties = $stmt->fetchAll();
-} catch (Throwable $e) {
-    $parties = [];
+if ($isMysqli) {
+    $res = $conn->query('SELECT party_id, party_name FROM parties ORDER BY party_name');
+    if ($res instanceof mysqli_result) {
+        while ($row = $res->fetch_assoc()) { $parties[] = $row; }
+        $res->free();
+    }
+} else {
+    try {
+        $stmt = $pdo->query('SELECT party_id, party_name FROM parties ORDER BY party_name');
+        $parties = $stmt->fetchAll();
+    } catch (Throwable $e) {
+        $parties = [];
+    }
 }
 
 $cheques = [];
-try {
-    // Prefer cheque_master if available
-    $stmt = $pdo->query('SELECT cheque_id, cheque_name FROM cheque_master ORDER BY cheque_name');
-    $cheques = $stmt->fetchAll();
-} catch (Throwable $e) {
-    // Fallback: distinct IDs from transactions
+if ($isMysqli) {
+    $res = $conn->query('SELECT cheque_id, cheque_name FROM cheque_master ORDER BY cheque_name');
+    if ($res instanceof mysqli_result) {
+        while ($row = $res->fetch_assoc()) { $cheques[] = $row; }
+        $res->free();
+    } else {
+        $res2 = $conn->query('SELECT DISTINCT cheque_id, CAST(cheque_id AS CHAR) AS cheque_name FROM transactions ORDER BY cheque_id');
+        if ($res2 instanceof mysqli_result) {
+            while ($row = $res2->fetch_assoc()) { $cheques[] = $row; }
+            $res2->free();
+        }
+    }
+} else {
     try {
-        $stmt = $pdo->query('SELECT DISTINCT cheque_id, CAST(cheque_id AS CHAR) AS cheque_name FROM transactions ORDER BY cheque_id');
+        // Prefer cheque_master if available
+        $stmt = $pdo->query('SELECT cheque_id, cheque_name FROM cheque_master ORDER BY cheque_name');
         $cheques = $stmt->fetchAll();
-    } catch (Throwable $e2) {
-        $cheques = [];
+    } catch (Throwable $e) {
+        // Fallback: distinct IDs from transactions
+        try {
+            $stmt = $pdo->query('SELECT DISTINCT cheque_id, CAST(cheque_id AS CHAR) AS cheque_name FROM transactions ORDER BY cheque_id');
+            $cheques = $stmt->fetchAll();
+        } catch (Throwable $e2) {
+            $cheques = [];
+        }
     }
 }
 
 // Build query
 $params = [];
 $wheres = [];
+$bindTypes = '';
+$bindValues = [];
 
 if ($selectedPartyId !== '') {
     $wheres[] = 't.party_id = :party_id';
     $params[':party_id'] = $selectedPartyId;
+    $bindTypes .= 'i';
+    $bindValues[] = (int)$selectedPartyId;
 }
 
 if ($selectedChequeId !== '') {
     $wheres[] = 't.cheque_id = :cheque_id';
     $params[':cheque_id'] = $selectedChequeId;
+    $bindTypes .= 'i';
+    $bindValues[] = (int)$selectedChequeId;
 }
 
 if ($dateFrom !== null) {
     $wheres[] = 't.transaction_date >= :date_from';
     $params[':date_from'] = $dateFrom;
+    $bindTypes .= 's';
+    $bindValues[] = $dateFrom;
 }
 
 if ($dateTo !== null) {
     $wheres[] = 't.transaction_date <= :date_to';
     $params[':date_to'] = $dateTo;
+    $bindTypes .= 's';
+    $bindValues[] = $dateTo;
 }
 
 $whereSql = count($wheres) ? ('WHERE ' . implode(' AND ', $wheres)) : '';
@@ -137,27 +170,66 @@ $sql = "
     ORDER BY t.transaction_date DESC, t.transaction_id DESC
 ";
 
+// Helper to bind params in mysqli dynamically
+if (!function_exists('mysqli_stmt_bind_params_dyn')) {
+    function mysqli_stmt_bind_params_dyn(mysqli_stmt $stmt, string $types, array $values): void {
+        if ($types === '' || count($values) === 0) { return; }
+        $refs = [];
+        foreach ($values as $k => $v) { $refs[$k] = &$values[$k]; }
+        array_unshift($refs, $types);
+        call_user_func_array([$stmt, 'bind_param'], $refs);
+    }
+}
+
 // Export CSV
 if (isset($_GET['export']) && $_GET['export'] === 'csv') {
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute($params);
     header('Content-Type: text/csv; charset=UTF-8');
     header('Content-Disposition: attachment; filename="cheques_' . date('Ymd_His') . '.csv"');
     $out = fopen('php://output', 'w');
     fputcsv($out, ['Transaction Date', 'Party', 'Cheque Name', 'Cheque ID', 'Cheque Date', 'Amount', 'A/C Payee Only', 'Remarks']);
-    while ($row = $stmt->fetch()) {
-        $chequeName = $row['cheque_name'] ?? '';
-        if ($chequeName === '' || $chequeName === null) { $chequeName = (string)($row['cheque_id'] ?? ''); }
-        fputcsv($out, [
-            format_date_display($row['transaction_date'] ?? null),
-            $row['party_name'] ?? '',
-            $chequeName,
-            (string)($row['cheque_id'] ?? ''),
-            format_date_display($row['cheque_date'] ?? null),
-            format_amount((string)($row['cheque_amount'] ?? '')),
-            ((string)($row['acc_payee_only'] ?? '')) === 'Y' ? 'Yes' : 'No',
-            (string)($row['remarks'] ?? ''),
-        ]);
+    if ($isMysqli) {
+        $sqlM = str_replace([':party_id', ':cheque_id', ':date_from', ':date_to'], ['?','?','?','?'], $sql);
+        $stmt = $conn->prepare($sqlM);
+        if ($stmt) {
+            mysqli_stmt_bind_params_dyn($stmt, $bindTypes, $bindValues);
+            $stmt->execute();
+            $res = $stmt->get_result();
+            if ($res instanceof mysqli_result) {
+                while ($row = $res->fetch_assoc()) {
+                    $chequeName = $row['cheque_name'] ?? '';
+                    if ($chequeName === '' || $chequeName === null) { $chequeName = (string)($row['cheque_id'] ?? ''); }
+                    fputcsv($out, [
+                        format_date_display($row['transaction_date'] ?? null),
+                        $row['party_name'] ?? '',
+                        $chequeName,
+                        (string)($row['cheque_id'] ?? ''),
+                        format_date_display($row['cheque_date'] ?? null),
+                        format_amount((string)($row['cheque_amount'] ?? '')),
+                        ((string)($row['acc_payee_only'] ?? '')) === 'Y' ? 'Yes' : 'No',
+                        (string)($row['remarks'] ?? ''),
+                    ]);
+                }
+                $res->free();
+            }
+            $stmt->close();
+        }
+    } else {
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($params);
+        while ($row = $stmt->fetch()) {
+            $chequeName = $row['cheque_name'] ?? '';
+            if ($chequeName === '' || $chequeName === null) { $chequeName = (string)($row['cheque_id'] ?? ''); }
+            fputcsv($out, [
+                format_date_display($row['transaction_date'] ?? null),
+                $row['party_name'] ?? '',
+                $chequeName,
+                (string)($row['cheque_id'] ?? ''),
+                format_date_display($row['cheque_date'] ?? null),
+                format_amount((string)($row['cheque_amount'] ?? '')),
+                ((string)($row['acc_payee_only'] ?? '')) === 'Y' ? 'Yes' : 'No',
+                (string)($row['remarks'] ?? ''),
+            ]);
+        }
     }
     fclose($out);
     exit;
@@ -165,12 +237,27 @@ if (isset($_GET['export']) && $_GET['export'] === 'csv') {
 
 // Fetch page rows
 $rows = [];
-try {
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute($params);
-    $rows = $stmt->fetchAll();
-} catch (Throwable $e) {
-    $rows = [];
+if ($isMysqli) {
+    $sqlM = str_replace([':party_id', ':cheque_id', ':date_from', ':date_to'], ['?','?','?','?'], $sql);
+    $stmt = $conn->prepare($sqlM);
+    if ($stmt) {
+        mysqli_stmt_bind_params_dyn($stmt, $bindTypes, $bindValues);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        if ($res instanceof mysqli_result) {
+            while ($row = $res->fetch_assoc()) { $rows[] = $row; }
+            $res->free();
+        }
+        $stmt->close();
+    }
+} else {
+    try {
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($params);
+        $rows = $stmt->fetchAll();
+    } catch (Throwable $e) {
+        $rows = [];
+    }
 }
 
 ?>
