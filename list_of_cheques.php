@@ -284,10 +284,12 @@ if ($shouldRun) {
       .btn-reset { background: rgba(148, 163, 184, 0.1); color: var(--text); border: 1px solid rgba(148, 163, 184, 0.3); }
       .btn-reset:hover { background: rgba(148, 163, 184, 0.2); }
       /* Normalize small buttons (buttons and anchors) to same height/shape and remove underline */
-      .btn-small { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; line-height: 1; }
+      .btn-small { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; line-height: 1; box-sizing: border-box; }
       a.btn-small { text-decoration: none; }
       a.btn-small:hover { text-decoration: none; }
-      .filters-actions .btn-small { min-height: 32px; }
+      .filters-actions .btn-small { height: 32px; padding: 6px 12px; border-radius: 6px; }
+      /* Ensure a visible border for all filter buttons unless overridden by variant */
+      .filters-actions .btn-small { border: 1px solid rgba(148, 163, 184, 0.3); }
       @media (min-width: 992px) {
         .filters-bar { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; }
         .filters-bar > .field { flex: 0 0 auto; }
